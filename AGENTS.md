@@ -198,30 +198,50 @@ This section outlines the primary user interface screens for the FlataMi flat-sh
 
 ---
 
-### 5. Offers List
+
+
+### 5. Offers List — Apartment Offers
 
 **Purpose:**
 
-* Provide a unified scrollable list of headlines for either apartment offers or flatmate-seeking posts.
+Provide a scrollable list of apartment listings, each displaying key property details.
 
 **Key Components:**
 
-* **List Items:** Card-style entries showing:
-
-  * Headline (e.g., "2BR in Trastevere, €800/mo")
-  * Thumbnail image
-  * Key detail icons (e.g., bedrooms, rent price)
-* **Infinite Scroll:** Loads more results as the user scrolls down.
-* **Tap Target:** Entire card is tappable to view full details.
+- **List Items:** Card-style entries showing:
+  - Headline (e.g., "2BR in Trastevere, €800/mo")
+  - Thumbnail image
+  - Number of occupants, bedrooms, and monthly rent icons
+- **Infinite Scroll:** Loads more results as the user scrolls down.
+- **Pull-to-Refresh:** Reloads the list.
 
 **Primary Interactions:**
 
-* Scroll through offers; tap a card to navigate to the detailed page.
-* Optionally, pull-to-refresh to update the list.
+- Scroll through apartment cards; tap to navigate to the Apartment Offer Page.
 
+
+### 6. Offers List — Flatmate Profiles
+
+**Purpose:**
+
+Provide a scrollable list of flatmate-seeking profiles, each showing user preferences.
+
+**Key Components:**
+
+- **List Items:** Card-style entries showing:
+  - Headline (e.g., "Looking for roommate in Prati")
+  - Thumbnail image of user/profile
+  - Maximum rent willing to pay and desired area icons
+- **Infinite Scroll:** Loads more results as the user scrolls down.
+- **Pull-to-Refresh:** Reloads the list.
+
+**Primary Interactions:**
+
+- Scroll through profile cards; tap to navigate to the Flatmate Offer Page.
 ---
 
-### 6. Apartment Offer Page
+
+### 7. Apartment Offer Page
 
 **Purpose:**
 
@@ -243,7 +263,8 @@ This section outlines the primary user interface screens for the FlataMi flat-sh
 
 ---
 
-### 7. Flatmate Offer Page
+
+### 8. Flatmate Offer Page
 
 **Purpose:**
 
