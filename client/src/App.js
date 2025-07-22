@@ -1,24 +1,45 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
+import MainPage from './pages/MainPage';
+import ProfilePage from './pages/ProfilePage';
+import LookForFlatPage from './pages/LookForFlatPage';
+import LookForFlatmatePage from './pages/LookForFlatmatePage';
+import ApartmentOffersListPage from './pages/ApartmentOffersListPage';
+import FlatmateOffersListPage from './pages/FlatmateOffersListPage';
+import ApartmentOfferPage from './pages/ApartmentOfferPage';
+import FlatmateOfferPage from './pages/FlatmateOfferPage';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <nav>
+          <Link to="/">Home</Link> |{' '}
+          <Link to="/profile">Profile</Link> |{' '}
+          <Link to="/look-for-flat">Look for Flat</Link> |{' '}
+          <Link to="/look-for-flatmate">Look for Flatmate</Link> |{' '}
+          <Link to="/apartment-offers">Apartment Offers</Link> |{' '}
+          <Link to="/flatmate-offers">Flatmate Offers</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/look-for-flat" element={<LookForFlatPage />} />
+          <Route path="/look-for-flatmate" element={<LookForFlatmatePage />} />
+          <Route
+            path="/apartment-offers"
+            element={<ApartmentOffersListPage />}
+          />
+          <Route
+            path="/flatmate-offers"
+            element={<FlatmateOffersListPage />}
+          />
+          <Route path="/apartment-offer" element={<ApartmentOfferPage />} />
+          <Route path="/flatmate-offer" element={<FlatmateOfferPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
