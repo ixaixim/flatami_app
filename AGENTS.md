@@ -287,5 +287,197 @@ Provide a scrollable list of flatmate-seeking profiles, each showing user prefer
 
 ---
 
+# UI Agents
+
+This document outlines the primary UI "agents"—self-contained components or modules—used throughout the FlataMi flat-sharing application. Each agent encapsulates a specific screen or feature, detailing its purpose, responsibilities, key subcomponents, and interactions.
+
+## 1. MainScreenAgent
+
+**Purpose:** Entry point guiding authenticated and unauthenticated users to core actions.
+
+**Responsibilities:**
+
+* Render app logo and title header
+* Display primary action buttons for "Look for Flatmate" and "Look for Apartment"
+* Manage authentication controls: show Login/Sign Up or user avatar with menu
+* Handle navigation to search or posting workflows
+
+**Key Subcomponents:**
+
+* `HeaderAgent`
+* `ActionButtonAgent`
+* `AuthControlsAgent`
+
+**Events & Props:**
+
+* `onSelectAction(type: 'flatmate' | 'apartment')`
+* `user` prop to toggle auth UI
+
+---
+
+## 2. ProfilePageAgent
+
+**Purpose:** Manage and display user information and post history.
+
+**Responsibilities:**
+
+* Show profile header with name and avatar
+* Provide tabs for "My Flatmate Posts" and "My Apartment Posts"
+* List user posts with status badges and timestamps
+* Trigger edit-profile modal
+
+**Key Subcomponents:**
+
+* `ProfileHeaderAgent`
+* `TabControlAgent`
+* `PostListAgent`
+* `EditProfileButtonAgent`
+
+**Events & Props:**
+
+* `onEditProfile()`
+* `posts` prop array of user listings
+
+---
+
+## 3. SearchFlatAgent
+
+**Purpose:** Enable browsing of apartment offers or posting a seeker profile.
+
+**Responsibilities:**
+
+* Display primary actions: browse offers or post profile
+* Optional search bar with filters (location, price, keywords)
+* Navigate to OffersListAgent or ProfilePostFormAgent
+
+**Key Subcomponents:**
+
+* `SearchActionButtons`
+* `SearchBarAgent`
+
+**Events & Props:**
+
+* `onBrowseOffers()`
+* `onPostProfile()`
+
+---
+
+## 4. SearchFlatmateAgent
+
+**Purpose:** Allow browsing of flatmate offers or posting a flat announcement.
+
+**Responsibilities:**
+
+* Display primary actions: browse flatmate offers or post announcement
+* Provide optional filters (rent range, location radius, move-in date)
+* Navigate to FlatmateOffersListAgent or FlatAnnouncementFormAgent
+
+**Key Subcomponents:**
+
+* `SearchActionButtons`
+* `FilterControlsAgent`
+
+**Events & Props:**
+
+* `onBrowseFlatmates()`
+* `onPostFlatAnnouncement()`
+
+---
+
+## 5. OffersListAgent
+
+**Purpose:** List either apartment or flatmate offers in a unified view.
+
+**Responsibilities:**
+
+* Render a scrollable list of OfferCardAgent components
+* Implement infinite scroll or "Load More"
+* Toggle between Map and List view
+
+**Key Subcomponents:**
+
+* `OfferCardAgent`
+* `MapViewToggleAgent`
+* `InfiniteScrollAgent`
+
+**Events & Props:**
+
+* `offers` prop array of listings
+* `onSelectOffer(offerId: string)`
+
+---
+
+## 6. ApartmentOfferDetailAgent
+
+**Purpose:** Display detailed information for a single apartment listing.
+
+**Responsibilities:**
+
+* Show swipeable image carousel
+* Display title, location, rent, availability date
+* Render description and amenities list
+* Provide "Contact Host" CTA
+
+**Key Subcomponents:**
+
+* `ImageCarouselAgent`
+* `OfferInfoAgent`
+* `DescriptionAgent`
+* `ContactButtonAgent`
+
+**Events & Props:**
+
+* `offer` prop object
+* `onContactHost(offerId: string)`
+
+---
+
+## 7. FlatmateOfferDetailAgent
+
+**Purpose:** Present details of a flatmate-seeking post.
+
+**Responsibilities:**
+
+* Render photo gallery of interiors
+* Display post title, max rent, desired locations
+* Show description with preferences
+* Provide "Contact Flatmate" CTA
+
+**Key Subcomponents:**
+
+* `ImageCarouselAgent`
+* `OfferInfoAgent`
+* `PreferencesAgent`
+* `ContactButtonAgent`
+
+**Events & Props:**
+
+* `post` prop object
+* `onContactFlatmate(postId: string)`
+
+---
+
+## 8. Shared UI Agents
+
+These agents are reusable across screens to enforce consistency:
+
+* **HeaderAgent**: site-wide header and nav links
+* **FooterAgent**: legal links and support
+* **ModalAgent**: generic modal wrapper with header, body, actions
+* **ButtonAgent**: styled button variants (primary, secondary, outline)
+* **FormInputAgent**: text input with label and validation
+* **TabControlAgent**: tab navigation
+* **NotificationAgent**: toasts and alerts
+
+---
+
+## Usage Guidelines
+
+* **Composition**: Each screen-level agent composes shared agents to minimize duplication.
+* **Styling**: All agents consume tokens from `tailwind.config.js` for colors, spacing, and typography.
+* **Naming**: Prefix agents with the feature area (e.g., `Profile`, `Search`) to avoid collisions.
+*
+
+---
 *This ****`AGENT.md`**** file serves as the foundational guide. Additional sections and details will be added as the project evolves.*
 
