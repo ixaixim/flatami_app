@@ -293,7 +293,7 @@ Provide a scrollable list of flatmate-seeking profiles, each showing user prefer
 
 ## 9. Encouraged Use of Radix UI
 
-To ensure accessibility, consistency, and robust UI behavior across your application, we recommend using [Radix UI](https://www.radix-ui.com/) for headless component primitives. Radix UI provides unstyled but fully accessible building blocks—such as dialogs, tooltips, tabs, and menus—that seamlessly integrate with Tailwind CSS for styling. Key benefits:
+To ensure accessibility, consistency, and robust UI behavior across your application, we recommend using [Radix UI](https://www.radix-ui.com/) for headless component primitives. Radix UI provides unstyled but fully accessible building blocks—such as dialogs, tooltips, tabs, and menus—that seamlessly integrate with Tailwind CSS (v4) for styling. Key benefits:
 
 * **Built‑in Accessibility:** ARIA roles, focus management, and keyboard navigation out of the box.
 * **Unopinionated Styling:** Apply Tailwind utility classes (or your preferred CSS-in-JS) to achieve design consistency without overriding default styles.
