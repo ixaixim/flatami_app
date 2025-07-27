@@ -11,6 +11,12 @@ The codebase is organized into two main directories (`client/` and `server/`), p
 
 ---
 
+The project has been set up using Vite, using the React framework and the Typescript variant.
+
+```bash
+npm create vite@latest
+```
+
 # Build & Commands
 
 All commands are run from the project root unless otherwise specified.
@@ -35,8 +41,8 @@ cd server && npm install
 npm run dev
 
 # Alternatively:
-# Start React dev server
-cd client && npm start
+# Start Vite dev server
+cd client && npm run dev
 
 # Start Express dev server
 cd server && npm run dev   # (uses nodemon)
@@ -55,7 +61,7 @@ cd server && npm test
 ## Production Build & Start
 
 ```bash
-# Build React app
+# Build client for production (Vite)
 cd client && npm run build
 
 # Start Express server in production mode (serves built client)
@@ -101,7 +107,7 @@ cd server && npm start
 
 ## Core Screens
 
-This section outlines the primary user interface screens for the FlataMi flat-sharing app. Each screen is described in terms of its purpose, key components, and user interactions.
+This section outlines the primary user interface screens for the FlataMi flat‑sharing app. Each screen is described in terms of its purpose, key components, and user interactions.
 
 ---
 
@@ -198,8 +204,6 @@ This section outlines the primary user interface screens for the FlataMi flat-sh
 
 ---
 
-
-
 ### 5. Offers List — Apartment Offers
 
 **Purpose:**
@@ -208,17 +212,17 @@ Provide a scrollable list of apartment listings, each displaying key property de
 
 **Key Components:**
 
-- **List Items:** Card-style entries showing:
-  - Headline (e.g., "2BR in Trastevere, €800/mo")
-  - Thumbnail image
-  - Number of occupants, bedrooms, and monthly rent icons
-- **Infinite Scroll:** Loads more results as the user scrolls down.
-- **Pull-to-Refresh:** Reloads the list.
+* **List Items:** Card-style entries showing:
+
+  * Headline (e.g., "2BR in Trastevere, €800/mo")
+  * Thumbnail image
+  * Number of occupants, bedrooms, and monthly rent icons
+* **Infinite Scroll:** Loads more results as you scroll.
+* **Pull-to-Refresh:** Reloads the list.
 
 **Primary Interactions:**
 
-- Scroll through apartment cards; tap to navigate to the Apartment Offer Page.
-
+* Scroll through apartment cards; tap to navigate to the Apartment Offer Page.
 
 ### 6. Offers List — Flatmate Profiles
 
@@ -228,18 +232,19 @@ Provide a scrollable list of flatmate-seeking profiles, each showing user prefer
 
 **Key Components:**
 
-- **List Items:** Card-style entries showing:
-  - Headline (e.g., "Looking for roommate in Prati")
-  - Thumbnail image of user/profile
-  - Maximum rent willing to pay and desired area icons
-- **Infinite Scroll:** Loads more results as the user scrolls down.
-- **Pull-to-Refresh:** Reloads the list.
+* **List Items:** Card-style entries showing:
+
+  * Headline (e.g., "Looking for roommate in Prati")
+  * Thumbnail image of user/profile
+  * Maximum rent willing to pay and desired area icons
+* **Infinite Scroll:** Loads more results as you scroll.
+* **Pull-to-Refresh:** Reloads the list.
 
 **Primary Interactions:**
 
-- Scroll through profile cards; tap to navigate to the Flatmate Offer Page.
----
+* Scroll through profile cards; tap to navigate to the Flatmate Offer Page.
 
+---
 
 ### 7. Apartment Offer Page
 
@@ -262,7 +267,6 @@ Provide a scrollable list of flatmate-seeking profiles, each showing user prefer
 * Tap "Contact Host" to start messaging.
 
 ---
-
 
 ### 8. Flatmate Offer Page
 
@@ -287,197 +291,50 @@ Provide a scrollable list of flatmate-seeking profiles, each showing user prefer
 
 ---
 
-# UI Agents
+## 9. Encouraged Use of Radix UI
 
-This document outlines the primary UI "agents"—self-contained components or modules—used throughout the FlataMi flat-sharing application. Each agent encapsulates a specific screen or feature, detailing its purpose, responsibilities, key subcomponents, and interactions.
+To ensure accessibility, consistency, and robust UI behavior across your application, we recommend using [Radix UI](https://www.radix-ui.com/) for headless component primitives. Radix UI provides unstyled but fully accessible building blocks—such as dialogs, tooltips, tabs, and menus—that seamlessly integrate with Tailwind CSS for styling. Key benefits:
 
-## 1. MainScreenAgent
+* **Built‑in Accessibility:** ARIA roles, focus management, and keyboard navigation out of the box.
+* **Unopinionated Styling:** Apply Tailwind utility classes (or your preferred CSS-in-JS) to achieve design consistency without overriding default styles.
+* **Lightweight & Flexible:** Small bundle size with granular imports, allowing you to pick only the components you need.
 
-**Purpose:** Entry point guiding authenticated and unauthenticated users to core actions.
+### Example: Styled Dialog with Radix UI and Tailwind CSS
 
-**Responsibilities:**
+```tsx
+import * as Dialog from '@radix-ui/react-dialog';
 
-* Render app logo and title header
-* Display primary action buttons for "Look for Flatmate" and "Look for Apartment"
-* Manage authentication controls: show Login/Sign Up or user avatar with menu
-* Handle navigation to search or posting workflows
+export function MyModal() {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger className="px-4 py-2 bg-indigo-600 text-white rounded-md">
+        Open Modal
+      </Dialog.Trigger>
 
-**Key Subcomponents:**
-
-* `HeaderAgent`
-* `ActionButtonAgent`
-* `AuthControlsAgent`
-
-**Events & Props:**
-
-* `onSelectAction(type: 'flatmate' | 'apartment')`
-* `user` prop to toggle auth UI
-
----
-
-## 2. ProfilePageAgent
-
-**Purpose:** Manage and display user information and post history.
-
-**Responsibilities:**
-
-* Show profile header with name and avatar
-* Provide tabs for "My Flatmate Posts" and "My Apartment Posts"
-* List user posts with status badges and timestamps
-* Trigger edit-profile modal
-
-**Key Subcomponents:**
-
-* `ProfileHeaderAgent`
-* `TabControlAgent`
-* `PostListAgent`
-* `EditProfileButtonAgent`
-
-**Events & Props:**
-
-* `onEditProfile()`
-* `posts` prop array of user listings
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 w-96 p-6 bg-white rounded-lg shadow-lg -translate-x-1/2 -translate-y-1/2">
+          <Dialog.Title className="text-lg font-semibold">Payment Successful</Dialog.Title>
+          <Dialog.Description className="mt-2 text-sm text-gray-600">
+            Your payment has been processed.
+          </Dialog.Description>
+          <Dialog.Close className="mt-4 px-3 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Got it, thanks!
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
 
 ---
 
-## 3. SearchFlatAgent
+## 10. Styling & Conventions
 
-**Purpose:** Enable browsing of apartment offers or posting a seeker profile.
-
-**Responsibilities:**
-
-* Display primary actions: browse offers or post profile
-* Optional search bar with filters (location, price, keywords)
-* Navigate to OffersListAgent or ProfilePostFormAgent
-
-**Key Subcomponents:**
-
-* `SearchActionButtons`
-* `SearchBarAgent`
-
-**Events & Props:**
-
-* `onBrowseOffers()`
-* `onPostProfile()`
+* **Tailwind Tokens:** All components consume design tokens from `tailwind.config.js`.
+* **Naming:** Use PascalCase for components and pages.
+* **Folder Structure:** Group by feature, e.g. `src/pages`, `src/components`, `src/components/shared`.
+* **Props & Events:** Keep props focused (avoid passing large objects), and name event handlers `onXxx` (e.g., `onSelectOffer`).
 
 ---
-
-## 4. SearchFlatmateAgent
-
-**Purpose:** Allow browsing of flatmate offers or posting a flat announcement.
-
-**Responsibilities:**
-
-* Display primary actions: browse flatmate offers or post announcement
-* Provide optional filters (rent range, location radius, move-in date)
-* Navigate to FlatmateOffersListAgent or FlatAnnouncementFormAgent
-
-**Key Subcomponents:**
-
-* `SearchActionButtons`
-* `FilterControlsAgent`
-
-**Events & Props:**
-
-* `onBrowseFlatmates()`
-* `onPostFlatAnnouncement()`
-
----
-
-## 5. OffersListAgent
-
-**Purpose:** List either apartment or flatmate offers in a unified view.
-
-**Responsibilities:**
-
-* Render a scrollable list of OfferCardAgent components
-* Implement infinite scroll or "Load More"
-* Toggle between Map and List view
-
-**Key Subcomponents:**
-
-* `OfferCardAgent`
-* `MapViewToggleAgent`
-* `InfiniteScrollAgent`
-
-**Events & Props:**
-
-* `offers` prop array of listings
-* `onSelectOffer(offerId: string)`
-
----
-
-## 6. ApartmentOfferDetailAgent
-
-**Purpose:** Display detailed information for a single apartment listing.
-
-**Responsibilities:**
-
-* Show swipeable image carousel
-* Display title, location, rent, availability date
-* Render description and amenities list
-* Provide "Contact Host" CTA
-
-**Key Subcomponents:**
-
-* `ImageCarouselAgent`
-* `OfferInfoAgent`
-* `DescriptionAgent`
-* `ContactButtonAgent`
-
-**Events & Props:**
-
-* `offer` prop object
-* `onContactHost(offerId: string)`
-
----
-
-## 7. FlatmateOfferDetailAgent
-
-**Purpose:** Present details of a flatmate-seeking post.
-
-**Responsibilities:**
-
-* Render photo gallery of interiors
-* Display post title, max rent, desired locations
-* Show description with preferences
-* Provide "Contact Flatmate" CTA
-
-**Key Subcomponents:**
-
-* `ImageCarouselAgent`
-* `OfferInfoAgent`
-* `PreferencesAgent`
-* `ContactButtonAgent`
-
-**Events & Props:**
-
-* `post` prop object
-* `onContactFlatmate(postId: string)`
-
----
-
-## 8. Shared UI Agents
-
-These agents are reusable across screens to enforce consistency:
-
-* **HeaderAgent**: site-wide header and nav links
-* **FooterAgent**: legal links and support
-* **ModalAgent**: generic modal wrapper with header, body, actions
-* **ButtonAgent**: styled button variants (primary, secondary, outline)
-* **FormInputAgent**: text input with label and validation
-* **TabControlAgent**: tab navigation
-* **NotificationAgent**: toasts and alerts
-
----
-
-## Usage Guidelines
-
-* **Composition**: Each screen-level agent composes shared agents to minimize duplication.
-* **Styling**: All agents consume tokens from `tailwind.config.js` for colors, spacing, and typography.
-* **Naming**: Prefix agents with the feature area (e.g., `Profile`, `Search`) to avoid collisions.
-*
-
----
-*This ****`AGENT.md`**** file serves as the foundational guide. Additional sections and details will be added as the project evolves.*
-
