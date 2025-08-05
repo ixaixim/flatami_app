@@ -1,3 +1,4 @@
 export * from './MainActions';
-export * from './ListingCard';
+export { ListingCard } from './ListingCard';
+export type { Listing } from './ListingCard';
 export * from './ListingFeed';

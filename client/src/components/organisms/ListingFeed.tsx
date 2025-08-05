@@ -1,6 +1,6 @@
 import React from 'react';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { Listing, ListingCard } from './ListingCard';
+import { type Listing, ListingCard } from './ListingCard';
 
 export function ListingFeed({ data }: { data: Listing[] }) {
   return (

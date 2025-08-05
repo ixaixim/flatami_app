@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Listing } from '../components/organisms/ListingCard';
+import type { Listing } from '../components/organisms/ListingCard';
 
 export function useListings(search: string) {
   const [data, setData] = useState<Listing[]>([]);
