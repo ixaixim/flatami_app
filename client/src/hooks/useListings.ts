@@ -1,22 +1,15 @@
 import { useEffect, useState } from 'react';
-import type { Listing } from '../components/organisms/ListingCard';
+import type { Listing } from '../components/organisms';
+import { mockListings } from '../data/listings';
 
 export function useListings(search: string) {
   const [data, setData] = useState<Listing[]>([]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    fetch(`/api/listings?search=${encodeURIComponent(search)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then(setData)
-      .catch((err) => {
-        if (err.name !== 'AbortError') console.error(err);
-      });
-
-    return () => controller.abort();
+    const filteredData = mockListings.filter((listing) =>
+      listing.title.toLowerCase().includes(search.toLowerCase())
+    );
+    setData(filteredData);
   }, [search]);
 
   return data;
