@@ -1,4 +1,3 @@
-import React from 'react';
 import { Icon } from '../atoms/Icon';
 import { PriceText } from '../atoms/PriceText';
 import { LocationText } from '../atoms/LocationText';

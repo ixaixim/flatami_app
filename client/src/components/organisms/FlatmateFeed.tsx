@@ -1,12 +1,12 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { type Listing, ListingCard } from './ListingCard';
+import { type Flatmate, FlatmateCard } from './FlatmateCard';
 
-export function ListingFeed({ data }: { data: Listing[] }) {
+export function FlatmateFeed({ data }: { data: Flatmate[] }) {
   return (
     <ScrollArea.Root className='h-full w-full rounded-xl-clip border border-slate-300 bg-white'>
       <ScrollArea.Viewport className='h-full w-full p-4 flex flex-col gap-4'>
         {data.map((item) => (
-          <ListingCard key={item.id} listing={item} />
+          <FlatmateCard key={item.id} flatmate={item} />
         ))}
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar

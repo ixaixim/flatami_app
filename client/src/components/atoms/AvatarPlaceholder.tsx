@@ -1,5 +1,4 @@
 import * as Avatar from '@radix-ui/react-avatar';
-import React from 'react';
 
 interface Props {
   uri?: string;

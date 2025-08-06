@@ -1,5 +1,5 @@
 import * as LucideIcons from 'lucide-react';
-import { ComponentPropsWithoutRef, ElementType } from 'react';
+import type { ComponentPropsWithoutRef, ElementType } from 'react';
 
 // Any icon name from lucide-react (e.g. 'Search', 'DollarSign')
 export type IconName = keyof typeof LucideIcons;
