@@ -1,4 +1,5 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { Link } from 'react-router-dom';
 import { type Listing, ListingCard } from './ListingCard';
 
 export function ListingFeed({ data }: { data: Listing[] }) {
@@ -6,7 +7,9 @@ export function ListingFeed({ data }: { data: Listing[] }) {
     <ScrollArea.Root className='h-full w-full rounded-xl-clip border border-slate-300 bg-white'>
       <ScrollArea.Viewport className='h-full w-full p-4 flex flex-col gap-4'>
         {data.map((item) => (
-          <ListingCard key={item.id} listing={item} />
+          <Link to={`/listings/${item.id}`} key={item.id}>
+            <ListingCard listing={item} />
+          </Link>
         ))}
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar
