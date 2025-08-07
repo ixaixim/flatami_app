@@ -1,5 +1,5 @@
 // InfoItem component for icon + text pair
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface InfoItemProps {
   icon: ReactNode;
