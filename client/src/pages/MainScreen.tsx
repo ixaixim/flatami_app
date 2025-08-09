@@ -1,22 +1,35 @@
-import { Link } from 'react-router-dom';
 import { Header } from '../components/molecules/Header';
+import { Hero } from '../components/organisms/Hero';
 import { MainActions } from '../components/organisms/MainActions';
+import { Features } from '../components/organisms/Features';
+import { Footer } from '../components/molecules/Footer';
 
 export default function MainScreen() {
+  // If you have auth later, pass the real user: <Header user={currentUser} />
   return (
     <div className="min-h-dvh flex flex-col">
       <Header />
+      <main className="flex-1">
+        <Hero />
+          <section
+            className="relative min-h-[60vh]"
+            style={{
+              backgroundImage: "url('/public/backgrounds/cozy_apartment_background.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            <div className="mx-auto mt-10 max-w-6xl px-4">
+              <MainActions />
+            </div>
+            <div className="relative">
+            <Features />
+            </div>
+          </section>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-10">
-        <h1 className="text-4xl font-bold tracking-tight">FlataMi</h1>
-        <MainActions />
       </main>
-
-      <footer className="py-4 text-center">
-        <Link to="/auth" className="text-sm text-gray-500">
-          Login / Sign Up
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

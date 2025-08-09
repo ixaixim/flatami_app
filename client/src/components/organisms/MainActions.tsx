@@ -1,21 +1,30 @@
-
-import { Button } from '../atoms/Button';
-import { UserIcon, HomeIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 
-export const MainActions = () => (
-  <section className="flex flex-col gap-6 w-full max-w-md">
-    <Link to="/flatmates">
-      <Button>
-        <UserIcon className="mr-2 h-6 w-6" />
-        Look for Flatmate
-      </Button>
-    </Link>
-    <Link to="/search">
-      <Button variant="secondary">
-        <HomeIcon className="mr-2 h-6 w-6" />
-        Look for Apartment
-      </Button>
-    </Link>
-  </section>
-);
+export function MainActions() {
+  return (
+    <section className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 md:grid-cols-2">
+      <Link
+        to="/flatmates"
+        className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">Look for Flatmate</h3>
+          <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Popular</span>
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
+          Post your profile and match with people who vibe with your lifestyle.
+        </p>
+        <div className="mt-4 h-36 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100 transition group-hover:scale-[1.01]" />
+      </Link>
+
+      <Link
+        to="/flats"
+        className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+      >
+        <h3 className="text-lg font-semibold text-gray-900">Look for Apartment</h3>
+        <p className="mt-2 text-sm text-gray-600">Browse verified listings with transparent details.</p>
+        <div className="mt-4 h-36 rounded-xl bg-gradient-to-br from-sky-50 to-sky-100 transition group-hover:scale-[1.01]" />
+      </Link>
+    </section>
+  );
+}
