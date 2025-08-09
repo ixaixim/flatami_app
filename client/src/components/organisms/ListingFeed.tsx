@@ -1,23 +1,13 @@
-import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { Link } from 'react-router-dom';
-import { type Listing, ListingCard } from './ListingCard';
+// components/organisms/ListingFeed.tsx
+import type { Listing } from '../../types/listing';
+import { ListingCard } from './ListingCard';
 
 export function ListingFeed({ data }: { data: Listing[] }) {
   return (
-    <ScrollArea.Root className='h-full w-full rounded-xl-clip border border-slate-300 bg-white'>
-      <ScrollArea.Viewport className='h-full w-full p-4 flex flex-col gap-4'>
-        {data.map((item) => (
-          <Link to={`/listings/${item.id}`} key={item.id}>
-            <ListingCard listing={item} />
-          </Link>
-        ))}
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar
-        orientation='vertical'
-        className='flex select-none touch-none p-0.5 bg-transparent hover:bg-slate-100'
-      >
-        <ScrollArea.Thumb className='flex-1 rounded-full bg-slate-400' />
-      </ScrollArea.Scrollbar>
-    </ScrollArea.Root>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {data.map((item, i) => (
+        <ListingCard key={item.id} listing={item} index={i} />
+      ))}
+    </div>
   );
 }

@@ -2,11 +2,11 @@ import { Link, useParams } from 'react-router-dom';
 import { CurrencyEuroIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { ImageCarousel, InfoItem } from "../components/molecules";
 import { FeatureTag } from "../components/atoms";
-import { mockListings } from '../data/listings';
+import { sampleListings } from '../data/sampleListings';
 
 function ApartmentOfferPage() {
   const { id } = useParams();
-  const apartment = mockListings.find(listing => listing.id === id);
+  const apartment = sampleListings.find(listing => listing.id === id);
 
   if (!apartment) {
     return <div className="max-w-4xl mx-auto p-4">Apartment not found</div>;

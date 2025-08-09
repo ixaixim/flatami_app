@@ -8,7 +8,7 @@ export const Button = ({ variant = 'primary', className, ...rest }: ButtonProps)
   <button
     {...rest}
     className={clsx(
-      'w-full rounded-xl py-4 text-lg font-medium transition flex items-center justify-center',
+      'btn w-full text-lg', // <- keeps your base "btn" settings
       variant === 'primary'
         ? 'bg-indigo-600 text-white hover:bg-indigo-700'
         : 'border border-indigo-600 text-indigo-700 hover:bg-indigo-50',

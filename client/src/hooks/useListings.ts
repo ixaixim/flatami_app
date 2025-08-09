@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
-import type { Listing } from '../components/organisms';
-import { mockListings } from '../data/listings';
+import { useMemo } from 'react';
+import { sampleListings } from '../data/sampleListings';
+import type { Listing } from '../types/listing';
 
-export function useListings(search: string) {
-  const [data, setData] = useState<Listing[]>([]);
-
-  useEffect(() => {
-    const filteredData = mockListings.filter((listing) =>
-      listing.title.toLowerCase().includes(search.toLowerCase())
+export function useListings(query: string): Listing[] {
+  return useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sampleListings;
+    return sampleListings.filter(
+      (l) =>
+        l.title.toLowerCase().includes(q) ||
+        l.district.toLowerCase().includes(q)
     );
-    setData(filteredData);
-  }, [search]);
-
-  return data;
+  }, [query]);
 }
