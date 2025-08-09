@@ -5,3 +5,5 @@ export * from './ListingFeed';
 export { FlatmateCard } from './FlatmateCard';
 export type { Flatmate } from './FlatmateCard';
 export * from './FlatmateFeed';
+export * from './PromoVideo';
+export * from './Faq';
