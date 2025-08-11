@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import type { Flatmate } from '../components/organisms/FlatmateCard';
+import type { Flatmate } from '../types/flatmate';
 import { mockFlatmates } from '../data/flatmates';
 
 export function useFlatmates(search: string) {
   const [data, setData] = useState<Flatmate[]>([]);
 
   useEffect(() => {
-    const filteredData = mockFlatmates.filter((flatmate) =>
-      flatmate.name.toLowerCase().includes(search.toLowerCase()) ||
-      flatmate.preferredArea.toLowerCase().includes(search.toLowerCase())
+    const term = search.toLowerCase();
+    const filtered = mockFlatmates.filter((f) =>
+      f.name.toLowerCase().includes(term) ||
+      f.preferredArea.toLowerCase().includes(term) ||
+      f.hobbies.some((h) => h.toLowerCase().includes(term)),
     );
-    setData(filteredData);
+    setData(filtered);
   }, [search]);
 
   return data;
