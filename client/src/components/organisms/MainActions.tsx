@@ -18,7 +18,7 @@ export function MainActions() {
       </Link>
 
       <Link
-        to="/flats"
+        to="/search"
         className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
       >
         <h3 className="text-lg font-semibold text-gray-900">Look for Apartment</h3>

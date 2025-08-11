@@ -74,7 +74,7 @@ function FlatmateOfferPage() {
                     value={flatmate.sleepingHabit}
                   />
                   <InfoItem
-                    icon={<Icon name='Broom' className='h-5 w-5 text-gray-700' />}
+                    icon={<Icon name='Brush' className='h-5 w-5 text-gray-700' />}
                     label='Tidiness'
                     value={flatmate.tidiness}
                   />

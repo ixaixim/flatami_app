@@ -10,5 +10,11 @@ type Props = {
 
 export function Icon({ name, ...rest }: Props) {
   const LucideIcon = LucideIcons[name] as ElementType;
-  return <LucideIcon size={18} {...rest} />;
+  
+  if (!LucideIcon) {
+    console.error(`Icon "${name}" not found in lucide-react`);
+    return null; // Return null instead of crashing
+  }
+  
+  return <LucideIcon {...rest} />;
 }
