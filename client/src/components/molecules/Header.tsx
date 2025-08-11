@@ -15,7 +15,7 @@ export function Header({ user }: { user?: User }) {
         {/* Nav */}
         <nav className="hidden gap-6 md:flex">
           <NavLink
-            to="/flats"
+            to="/search"
             className={({ isActive }) =>
               `text-sm font-medium transition hover:text-rose-600 ${isActive ? 'text-rose-600' : 'text-gray-700'}`
             }

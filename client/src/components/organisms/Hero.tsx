@@ -25,8 +25,14 @@ export function Hero() {
             onSubmit={(e) => {
               e.preventDefault();
               const form = e.currentTarget as HTMLFormElement;
-              const params = new URLSearchParams(new FormData(form) as any).toString();
-              window.location.href = `/search?${params}`;
+              const formData = new FormData(form);
+              const type = formData.get('type');
+              const params = new URLSearchParams(formData as any).toString();
+              if (type === 'flatmate') {
+                window.location.href = `/flatmates?${params}`;
+              } else {
+                window.location.href = `/search?${params}`;
+              }
             }}
           >
             <input
@@ -65,7 +71,7 @@ export function Hero() {
             <Link to="/flatmates" className="flex-1 rounded-xl border px-3 py-2 text-center text-sm">
               Find Flatmate
             </Link>
-            <Link to="/flats" className="flex-1 rounded-xl border px-3 py-2 text-center text-sm">
+            <Link to="/search" className="flex-1 rounded-xl border px-3 py-2 text-center text-sm">
               Find Apartment
             </Link>
           </div>
