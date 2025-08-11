@@ -16,7 +16,7 @@ export default function MainScreen() {
         <section
           className="relative min-h-[60vh]"
           style={{
-            backgroundImage: "url('/public/backgrounds/cozy_apartment_background.png')",
+            backgroundImage: "url('/backgrounds/cozy_apartment_background.png')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
