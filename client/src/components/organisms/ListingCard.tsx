@@ -30,8 +30,8 @@ const safeSrc =
         <img
           src={safeSrc}
           alt={title}
-          // loading= {index < 4 ? 'eager' : 'lazy'}
-          loading="eager"            // temporarily eager to verify it loads
+          loading= {index < 4 ? 'eager' : 'lazy'}
+          // loading="eager"            // temporarily eager to verify it loads
 
           // If TS complains, see note (C) below
           fetchPriority={index < 2 ? 'high' : 'auto'}

@@ -338,3 +338,588 @@ export function MyModal() {
 * **Props & Events:** Keep props focused (avoid passing large objects), and name event handlers `onXxx` (e.g., `onSelectOffer`).
 
 ---
+
+# Server Backend – AGENTS.md
+
+This document specifies the **backend (server)** for the FlataMi flat‑sharing app. It follows a **MERN** architecture, focusing on Express, MongoDB (Mongoose), JWT auth (with optional Social Login), file uploads, filtering, and pagination.
+
+---
+
+## Project Overview
+
+* **API Layer:** Node.js + Express REST API
+* **Database:** MongoDB (Atlas/local) with Mongoose
+* **Auth:** Email/password with JWT; optional Google/Facebook via Passport OAuth 2.0
+* **Uploads:** Local `uploads/` via Multer (future‑ready for S3/Cloudinary)
+* **Search:** Query parameters for filters (rent, location, availability), pagination
+* **Style:** MVC-ish separation (routes/controllers/models/middlewares)
+
+**Repo layout (server side):**
+
+```
+server/
+├─ src/
+│  ├─ config/          # env + db connection + passport strategies
+│  ├─ controllers/     # route handlers (business logic)
+│  ├─ models/          # mongoose schemas
+│  ├─ routes/          # express routers (users, auth, listings)
+│  ├─ middlewares/     # auth, error handler, multer setup
+│  ├─ utils/           # helpers (token, validators, etc.)
+│  ├─ app.ts           # express app
+│  └─ server.ts        # bootstrap + listen
+├─ uploads/            # local file storage (gitignored)
+├─ .env                # environment variables (gitignored)
+├─ package.json
+└─ tsconfig.json / jsconfig.json
+```
+
+---
+
+## Build & Commands
+
+All commands are run from `server/` unless stated otherwise.
+
+### Setup
+
+```bash
+# install deps
+npm install
+
+# copy env template
+cp .env.example .env
+```
+
+### Development
+
+```bash
+# run dev server with auto-reload (ts-node-dev or nodemon)
+npm run dev
+```
+
+### Testing
+
+```bash
+# run unit/integration tests (Jest + Supertest recommended)
+npm test
+```
+
+### Production
+
+```bash
+# compile TS (if using TS) and start
+npm run build
+npm start
+```
+
+**Example scripts (package.json):**
+
+```json
+{
+  "scripts": {
+    "dev": "nodemon --watch src --exec ts-node src/server.ts",
+    "build": "tsc -p .",
+    "start": "node dist/server.js",
+    "test": "jest"
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+Create `.env` (never commit). Example:
+
+```bash
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/flatami
+CORS_ORIGIN=http://localhost:5173
+JWT_SECRET=change_this_in_prod
+JWT_EXPIRES_IN=1d
+# Social login (optional)
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_OAUTH_CALLBACK=/auth/google/callback
+FACEBOOK_APP_ID=...
+FACEBOOK_APP_SECRET=...
+FACEBOOK_CALLBACK=/auth/facebook/callback
+```
+
+**Config bootstrap:**
+
+```ts
+// src/config/env.ts
+import 'dotenv/config';
+export const env = {
+  port: Number(process.env.PORT) || 5000,
+  nodeEnv: process.env.NODE_ENV || 'development',
+  mongoUri: process.env.MONGO_URI!,
+  corsOrigin: process.env.CORS_ORIGIN || '*',
+  jwt: {
+    secret: process.env.JWT_SECRET!,
+    expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+  },
+  oauth: {
+    google: {
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_OAUTH_CALLBACK,
+    },
+    facebook: {
+      appId: process.env.FACEBOOK_APP_ID,
+      appSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: process.env.FACEBOOK_CALLBACK,
+    },
+  },
+};
+```
+
+---
+
+## App Initialization
+
+```ts
+// src/app.ts
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import path from 'path';
+import { env } from './config/env';
+import { router as userRouter } from './routes/user.routes';
+import { router as authRouter } from './routes/auth.routes';
+import { router as listingRouter } from './routes/listing.routes';
+import { errorHandler, notFound } from './middlewares/error';
+
+export const app = express();
+app.use(cors({ origin: env.corsOrigin, credentials: true }));
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/listings', listingRouter);
+
+app.use(notFound);
+app.use(errorHandler);
+```
+
+```ts
+// src/server.ts
+import { app } from './app';
+import { connectDB } from './config/mongo';
+import { env } from './config/env';
+
+(async () => {
+  await connectDB();
+  app.listen(env.port, () => {
+    console.log(`API listening on http://localhost:${env.port}`);
+  });
+})();
+```
+
+---
+
+## Database (Mongoose)
+
+```ts
+// src/config/mongo.ts
+import mongoose from 'mongoose';
+import { env } from './env';
+
+export async function connectDB() {
+  await mongoose.connect(env.mongoUri);
+  console.log('MongoDB connected');
+}
+```
+
+**User model:**
+
+```ts
+// src/models/User.ts
+import { Schema, model } from 'mongoose';
+
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String }, // set when using email/password
+    googleId: { type: String },     // social login optional
+    facebookId: { type: String },
+    avatarUrl: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const User = model('User', userSchema);
+```
+
+**Listing model:**
+
+```ts
+// src/models/Listing.ts
+import { Schema, model, Types } from 'mongoose';
+
+const listingSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String },
+    rent: { type: Number, required: true },
+    location: { type: String, required: true },
+    available: { type: Boolean, default: true },
+    availableFrom: { type: Date },
+    images: [String],
+    postedBy: { type: Types.ObjectId, ref: 'User', required: true },
+  },
+  { timestamps: true }
+);
+
+listingSchema.index({ title: 'text', description: 'text' });
+export const Listing = model('Listing', listingSchema);
+```
+
+---
+
+## Authentication
+
+### Password Hashing & JWT
+
+```ts
+// src/utils/password.ts
+import bcrypt from 'bcryptjs';
+export const hash = (plain: string) => bcrypt.hash(plain, 10);
+export const compare = (plain: string, hashed: string) => bcrypt.compare(plain, hashed);
+```
+
+```ts
+// src/utils/jwt.ts
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env';
+export function signToken(payload: object) {
+  return jwt.sign(payload, env.jwt.secret, { expiresIn: env.jwt.expiresIn });
+}
+export function verifyToken<T>(token: string) {
+  return jwt.verify(token, env.jwt.secret) as T;
+}
+```
+
+```ts
+// src/middlewares/auth.ts
+import { Request, Response, NextFunction } from 'express';
+import { verifyToken } from '../utils/jwt';
+
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const header = req.headers.authorization; // Bearer <token>
+  const token = header?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token' });
+  try {
+    const decoded = verifyToken<{ userId: string }>(token);
+    (req as any).user = decoded;
+    next();
+  } catch {
+    return res.status(403).json({ message: 'Invalid/expired token' });
+  }
+}
+```
+
+### Auth Routes & Controllers
+
+```ts
+// src/routes/auth.routes.ts
+import { Router } from 'express';
+import { login, register, me } from '../controllers/auth.controller';
+import { requireAuth } from '../middlewares/auth';
+export const router = Router();
+router.post('/register', register);
+router.post('/login', login);
+router.get('/me', requireAuth, me);
+```
+
+```ts
+// src/controllers/auth.controller.ts
+import { Request, Response } from 'express';
+import { User } from '../models/User';
+import { hash, compare } from '../utils/password';
+import { signToken } from '../utils/jwt';
+
+export async function register(req: Request, res: Response) {
+  const { name, email, password } = req.body;
+  const exists = await User.findOne({ email });
+  if (exists) return res.status(409).json({ message: 'Email in use' });
+  const passwordHash = await hash(password);
+  const user = await User.create({ name, email, passwordHash });
+  const token = signToken({ userId: user.id });
+  res.status(201).json({ token });
+}
+
+export async function login(req: Request, res: Response) {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !user.passwordHash) return res.status(401).json({ message: 'Invalid creds' });
+  const ok = await compare(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ message: 'Invalid creds' });
+  const token = signToken({ userId: user.id });
+  res.json({ token });
+}
+
+export async function me(req: Request, res: Response) {
+  const userId = (req as any).user.userId;
+  const user = await User.findById(userId).select('name email avatarUrl createdAt');
+  res.json({ user });
+}
+```
+
+### Social Login (Optional, via Passport)
+
+```ts
+// src/config/passport.ts
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { User } from '../models/User';
+import { env } from './env';
+
+passport.use(new GoogleStrategy({
+  clientID: env.oauth.google.clientId!,
+  clientSecret: env.oauth.google.clientSecret!,
+  callbackURL: env.oauth.google.callbackURL,
+}, async (_at, _rt, profile, done) => {
+  const email = profile.emails?.[0]?.value;
+  if (!email) return done(null, false);
+  let user = await User.findOne({ email });
+  if (!user) user = await User.create({ name: profile.displayName, email, googleId: profile.id });
+  return done(null, user);
+}));
+
+export { passport };
+```
+
+```ts
+// src/routes/social.routes.ts (example wiring)
+import { Router } from 'express';
+import { passport } from '../config/passport';
+import { signToken } from '../utils/jwt';
+export const router = Router();
+
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), (req: any, res) => {
+  const token = signToken({ userId: req.user.id });
+  // redirect to client with token (or set cookie)
+  res.redirect(`${process.env.CLI_URL}/social-login?token=${token}`);
+});
+```
+
+> For Facebook: replicate with `passport-facebook`.
+
+---
+
+## Listings: Routes, Controllers, Filtering & Pagination
+
+```ts
+// src/routes/listing.routes.ts
+import { Router } from 'express';
+import { requireAuth } from '../middlewares/auth';
+import { createListing, getListingById, getListings } from '../controllers/listing.controller';
+import { uploadSingle } from '../middlewares/upload';
+
+export const router = Router();
+router.get('/', getListings);                 // public (with filters)
+router.get('/:id', getListingById);           // public
+router.post('/', requireAuth, uploadSingle, createListing); // protected + upload
+```
+
+```ts
+// src/controllers/listing.controller.ts
+import { Request, Response } from 'express';
+import { Listing } from '../models/Listing';
+
+export async function getListings(req: Request, res: Response) {
+  const { page = '1', limit = '10', minRent, maxRent, location, available, q } = req.query;
+  const filter: any = {};
+  if (minRent) filter.rent = { ...filter.rent, $gte: Number(minRent) };
+  if (maxRent) filter.rent = { ...filter.rent, $lte: Number(maxRent) };
+  if (location) filter.location = location;
+  if (available) filter.available = available === 'true';
+  if (q) filter.$text = { $search: String(q) }; // requires text index
+
+  const pageN = Math.max(1, Number(page) || 1);
+  const limitN = Math.min(100, Math.max(1, Number(limit) || 10));
+
+  const [items, total] = await Promise.all([
+    Listing.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((pageN - 1) * limitN)
+      .limit(limitN)
+      .lean(),
+    Listing.countDocuments(filter),
+  ]);
+
+  res.json({
+    listings: items,
+    totalPages: Math.ceil(total / limitN),
+    currentPage: pageN,
+    total,
+  });
+}
+
+export async function getListingById(req: Request, res: Response) {
+  const doc = await Listing.findById(req.params.id).populate('postedBy', 'name');
+  if (!doc) return res.status(404).json({ message: 'Not found' });
+  res.json(doc);
+}
+
+export async function createListing(req: Request, res: Response) {
+  const userId = (req as any).user.userId;
+  const body = req.body as any;
+  const images = (req as any).files?.length
+    ? (req as any).files.map((f: any) => f.path)
+    : ((req as any).file ? [(req as any).file.path] : []);
+
+  const doc = await Listing.create({
+    title: body.title,
+    description: body.description,
+    rent: Number(body.rent),
+    location: body.location,
+    available: body.available !== 'false',
+    availableFrom: body.availableFrom ? new Date(body.availableFrom) : undefined,
+    images,
+    postedBy: userId,
+  });
+  res.status(201).json(doc);
+}
+```
+
+---
+
+## File Uploads (Multer)
+
+```ts
+// src/middlewares/upload.ts
+import multer from 'multer';
+import path from 'path';
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, 'uploads/'),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
+});
+
+function fileFilter(_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) {
+  const ok = /jpeg|jpg|png|webp/.test(path.extname(file.originalname).toLowerCase());
+  cb(ok ? null : new Error('Invalid file type'), ok);
+}
+
+export const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+export const uploadSingle = upload.single('image');
+export const uploadArray = upload.array('images', 8);
+```
+
+> Static serving is enabled in `app.ts` via `app.use('/uploads', express.static('uploads'))`.
+
+---
+
+## Validation & Error Handling
+
+**Validation (suggested):** Use `express-validator` or `zod` for request validation.
+
+```ts
+// example with zod
+import { z } from 'zod';
+export const createListingSchema = z.object({
+  title: z.string().min(3),
+  description: z.string().optional(),
+  rent: z.coerce.number().positive(),
+  location: z.string().min(2),
+  available: z.coerce.boolean().optional(),
+  availableFrom: z.coerce.date().optional(),
+});
+```
+
+**Error middleware:**
+
+```ts
+// src/middlewares/error.ts
+import { Request, Response, NextFunction } from 'express';
+export function notFound(_req: Request, res: Response) {
+  res.status(404).json({ message: 'Route not found' });
+}
+export function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
+  const status = err.status || 500;
+  res.status(status).json({ message: err.message || 'Server error' });
+}
+```
+
+---
+
+## Security & CORS
+
+* Use HTTPS in production.
+* Sanitize and validate input.
+* Hash passwords (bcrypt) and never store plaintext.
+* Set sensible JWT expiry; rotate secrets when needed.
+* Configure CORS to the frontend origin during development.
+
+---
+
+## Linting, Formatting, and Pre‑commit
+
+* **ESLint** with a Node/TypeScript preset (Airbnb base optional)
+* **Prettier** for formatting
+* **Husky** + **lint-staged** for pre‑commit hooks
+
+```bash
+npm i -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier eslint-config-prettier eslint-plugin-import husky lint-staged
+```
+
+---
+
+## Minimal API Reference
+
+**Auth**
+
+* `POST /api/auth/register` { name, email, password } → `{ token }`
+* `POST /api/auth/login` { email, password } → `{ token }`
+* `GET  /api/auth/me` (Bearer) → \`{ user }
+
+**Listings**
+
+* `GET  /api/listings` `?page&limit&minRent&maxRent&location&available&q`
+* `GET  /api/listings/:id`
+* `POST /api/listings` (Bearer + multipart) fields: `title, description, rent, location, available, availableFrom` + `image|images[]`
+
+**Users (optional)**
+
+* `GET /api/users/me` (alias of /auth/me) or profile endpoints later.
+
+---
+
+## Rollout Order (Recommended)
+
+1. **Scaffold project & env** → app, server, DB connect, error middleware
+2. **User model + auth (email/password)** → register/login/me + JWT middleware
+3. **Listings CRUD (basic)** → create/getById/getAll
+4. **Uploads** → Multer local, static serving
+5. **Filtering + Pagination** → query params, indices
+6. **Social login (Google)** → Passport strategy + callback → JWT
+7. **Validation & hardening** → zod/express-validator, rate limiting (optional)
+
+---
+
+## Future Enhancements
+
+* Cloud storage (S3/Cloudinary) via an upload service
+* Full‑text search or geo queries
+* Rate limiting (express-rate-limit) and helmet hardening
+* Refresh tokens / rotate JWTs
+* Messaging/chat service
+
+---
+
+## Notes
+
+* No role‑based access now; any authenticated user can post and search.
+* Keep controllers thin; push reusable logic into services/utils as app grows.
+* Document your API for the frontend (this file + a `/docs` route or Swagger later).
