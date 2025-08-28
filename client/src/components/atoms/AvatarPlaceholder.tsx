@@ -25,3 +25,4 @@ export function AvatarPlaceholder({ uri, alt = 'avatar', size = 56 }: Props) {
     </Avatar.Root>
   );
 }
+// AvatarPlaceholder: Fallback circular avatar used when no image is provided.

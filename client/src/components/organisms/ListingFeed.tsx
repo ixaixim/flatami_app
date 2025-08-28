@@ -11,3 +11,4 @@ export function ListingFeed({ data }: { data: Listing[] }) {
     </div>
   );
 }
+// ListingFeed: Infinite-scroll feed rendering apartment listings with filters.

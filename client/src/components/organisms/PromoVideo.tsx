@@ -16,4 +16,4 @@ export function PromoVideo() {
     </section>
   );
 }
-
+// PromoVideo: Embedded promo/demo video section for marketing content.

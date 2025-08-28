@@ -18,3 +18,4 @@ export function FlatmateSearchBar({ value, onChange }: Props) {
     </label>
   );
 }
+// FlatmateSearchBar: Composite search inputs for filtering flatmate profiles.

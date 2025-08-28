@@ -12,3 +12,4 @@ export function SearchInput(
     />
   );
 }
+// SearchInput: Text input with icon used for filtering lists.

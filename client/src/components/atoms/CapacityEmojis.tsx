@@ -31,3 +31,4 @@ export function CapacityEmojis({ capacity, occupants, className }: Props) {
     </div>
   );
 }
+// CapacityEmojis: Shows occupant/bedroom counts using emoji indicators.

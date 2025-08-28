@@ -95,3 +95,4 @@ const safeSrc =
     </Link>
   );
 }
+// ListingCard: Card view for an apartment offer including images and details.

@@ -31,3 +31,4 @@ export function Features() {
     </section>
   );
 }
+// Features: Highlights key app benefits in a grid of feature items.

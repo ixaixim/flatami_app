@@ -10,3 +10,4 @@ export function FeatureTag({ label }: FeatureTagProps) {
     </span>
   );
 }
+// FeatureTag: Small pill/tag to display an amenity or feature.

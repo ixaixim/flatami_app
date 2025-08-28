@@ -74,3 +74,4 @@ export function Faq() {
     </section>
   );
 }
+// Faq: Collapsible list of frequent questions and answers.

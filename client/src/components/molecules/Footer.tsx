@@ -48,3 +48,4 @@ export function Footer() {
     </footer>
   );
 }
+// Footer: App footer with links, branding, and secondary navigation.

@@ -28,3 +28,4 @@ export function MainActions() {
     </section>
   );
 }
+// MainActions: Prominent entry actions to browse flats or find flatmates.

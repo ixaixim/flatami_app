@@ -10,3 +10,4 @@ export function FlatmateFeed({ data }: { data: Flatmate[] }) {
     </div>
   );
 }
+// FlatmateFeed: Scrollable list of flatmate-seeking profiles with filters.

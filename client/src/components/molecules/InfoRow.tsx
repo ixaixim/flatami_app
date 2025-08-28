@@ -17,3 +17,4 @@ export function InfoRow({ price, location }: Props) {
     </div>
   );
 }
+// InfoRow: Row layout to show an icon with a labeled value.
