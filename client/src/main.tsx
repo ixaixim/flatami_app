@@ -9,6 +9,10 @@ import SearchPage from './pages/SearchPage';
 import FlatmateSearchPage from './pages/FlatmateSearchPage';
 import ApartmentOfferPage from './pages/ApartmentOfferPage';
 import FlatmateOfferPage from './pages/FlatmateOfferPage';
+import FavsPage from './pages/FavsPage';
+import CreatePage from './pages/CreatePage';
+import ChatPage from './pages/ChatPage';
+import ProfilePage from './pages/ProfilePage';
 
 const router = createBrowserRouter([
   { path: '/', element: <MainScreen /> },
@@ -16,8 +20,11 @@ const router = createBrowserRouter([
   { path: '/flatmates', element: <FlatmateSearchPage /> },
   { path: '/flatmates/:id', element: <FlatmateOfferPage /> },
   { path: '/listings/:id', element: <ApartmentOfferPage /> },
+  { path: '/favs', element: <FavsPage /> },
+  { path: '/create', element: <CreatePage /> },
+  { path: '/chat', element: <ChatPage /> },
+  { path: '/profile', element: <ProfilePage /> },
 ]);
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <RouterProvider router={router} />
 );
-
