@@ -40,3 +40,4 @@ export function ImageCarousel({ images, title }: ImageCarouselProps) {
     </Swiper>
   );
 }
+// ImageCarousel: Swipeable image gallery for listings and posts.

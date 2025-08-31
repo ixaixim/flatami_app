@@ -80,3 +80,4 @@ export function Hero() {
     </section>
   );
 }
+// Hero: Landing hero section with headline, CTA buttons, and background.

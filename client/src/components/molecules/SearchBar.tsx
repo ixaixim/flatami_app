@@ -18,3 +18,4 @@ export function SearchBar({ value, onChange }: Props) {
     </label>
   );
 }
+// SearchBar: Combined keyword/location inputs for listing queries.

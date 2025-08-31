@@ -16,3 +16,4 @@ export const Button = ({ variant = 'primary', className, ...rest }: ButtonProps)
     )}
   />
 );
+// Button: Reusable button with variants and sizes for actions.

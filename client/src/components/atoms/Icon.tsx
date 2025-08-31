@@ -18,3 +18,4 @@ export function Icon({ name, ...rest }: Props) {
   
   return <LucideIcon {...rest} />;
 }
+// Icon: Renders an SVG/icon by name with sizing and color props.

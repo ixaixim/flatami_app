@@ -59,3 +59,4 @@ export function FlatmateCard({ flatmate }: { flatmate: Flatmate }) {
     </Link>
   );
 }
+// FlatmateCard: Card view for a flatmate profile with preferences and budget.

@@ -15,3 +15,4 @@ export function InfoItem({ icon, label, value }: InfoItemProps) {
     </li>
   );
 }
+// InfoItem: Small labeled metric (e.g., bedrooms, rent) with icon.

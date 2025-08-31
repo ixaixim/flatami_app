@@ -64,3 +64,4 @@ export function Header({ user }: { user?: User }) {
     </header>
   );
 }
+// Header: Top navigation/header bar with branding and actions.
