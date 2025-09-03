@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/atoms/Icon';
 import { FeatureTag } from '../components/atoms/FeatureTag';
