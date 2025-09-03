@@ -17,4 +17,7 @@ const listingSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// Text index for simple full-text search on title/description
+listingSchema.index({ title: 'text', description: 'text' });
+
 module.exports = mongoose.model('Listing', listingSchema);

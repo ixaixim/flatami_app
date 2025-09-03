@@ -4,9 +4,11 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    // Password is stored as a bcrypt hash
+    passwordHash: { type: String },
     googleId: { type: String },
     facebookId: { type: String },
+    avatarUrl: { type: String },
   },
   { timestamps: true },
 );
