@@ -345,6 +345,37 @@ This document specifies the **backend (server)** for the FlataMi flat‑sharing 
 
 ---
 
+## Current Implementation Snapshot (Aug 2025)
+
+This repository currently implements a JavaScript (CommonJS) server with a
+minimal bootstrap and Mongoose models. TypeScript examples in this document
+serve as a reference but are not yet implemented.
+
+- Server language: JavaScript (CommonJS)
+- Paths present:
+  - `server/server.js` (basic Express app)
+  - `server/config/db.js` (Mongo connection)
+  - `server/config/index.js` (env access)
+  - `server/models/user.js`
+  - `server/models/listing.js`
+  - `server/uploads/` (exists; static mounting not yet wired)
+- Missing (to implement): routes, controllers, middlewares, utils
+- Client uses mock data and does not call the API yet
+
+Use the “JS Mapping” and “Server TODO Checklist” below to implement features
+without guessing.
+
+---
+
+## Implementation Mode: JS vs TS
+
+- Default to JavaScript (current). Do not migrate to TypeScript unless explicitly
+  requested.
+- TS code blocks in this doc are for reference. Use the JS mapping to know where
+  to place equivalent files in the current codebase.
+
+---
+
 ## Project Overview
 
 * **API Layer:** Node.js + Express REST API
@@ -358,20 +389,40 @@ This document specifies the **backend (server)** for the FlataMi flat‑sharing 
 
 ```
 server/
-├─ src/
-│  ├─ config/          # env + db connection + passport strategies
-│  ├─ controllers/     # route handlers (business logic)
-│  ├─ models/          # mongoose schemas
-│  ├─ routes/          # express routers (users, auth, listings)
-│  ├─ middlewares/     # auth, error handler, multer setup
-│  ├─ utils/           # helpers (token, validators, etc.)
-│  ├─ app.ts           # express app
-│  └─ server.ts        # bootstrap + listen
+├─ server.js           # express app (current)
+├─ config/             # env + db connection
+├─ controllers/        # route handlers (business logic) (planned)
+├─ models/             # mongoose schemas
+├─ routes/             # express routers (auth, listings) (planned)
+├─ middlewares/        # auth, error handler, multer (planned)
+├─ utils/              # helpers (token, validators) (planned)
 ├─ uploads/            # local file storage (gitignored)
 ├─ .env                # environment variables (gitignored)
-├─ package.json
-└─ tsconfig.json / jsconfig.json
+└─ package.json
 ```
+
+---
+
+## JS Mapping (TS → JS paths)
+
+Use these when translating TS examples into the current JS project:
+
+- `src/app.ts` → `server/server.js`
+- `src/server.ts` → `server/server.js` (same file in JS; includes listen)
+- `src/config/env.ts` → `server/config/index.js`
+- `src/config/mongo.ts` → `server/config/db.js`
+- `src/models/User.ts` → `server/models/user.js`
+- `src/models/Listing.ts` → `server/models/listing.js`
+- `src/middlewares/auth.ts` → `server/middlewares/auth.js`
+- `src/middlewares/error.ts` → `server/middlewares/error.js`
+- `src/middlewares/upload.ts` → `server/middlewares/upload.js`
+- `src/utils/jwt.ts` → `server/utils/jwt.js`
+- `src/utils/password.ts` → `server/utils/password.js`
+- `src/controllers/*.ts` → `server/controllers/*.js`
+- `src/routes/*.routes.ts` → `server/routes/*.js`
+
+Keep CommonJS style (`require`, `module.exports`) for JS files to match the
+existing codebase.
 
 ---
 
@@ -426,6 +477,20 @@ npm start
 
 ---
 
+## Dependencies (JS server)
+
+Install these on the server when implementing routes and auth:
+
+```bash
+npm i express mongoose dotenv cors morgan bcryptjs jsonwebtoken multer
+npm i -D nodemon
+```
+
+Root dev script (already present): `npm run dev` runs client and server via
+`concurrently`.
+
+---
+
 ## Environment Variables
 
 Create `.env` (never commit). Example:
@@ -445,6 +510,15 @@ FACEBOOK_APP_ID=...
 FACEBOOK_APP_SECRET=...
 FACEBOOK_CALLBACK=/auth/facebook/callback
 ```
+
+Clarifications for the current repo:
+
+- Required now: `PORT`, `MONGO_URI`, `JWT_SECRET`.
+- Optional/future: `CORS_ORIGIN`, `JWT_EXPIRES_IN`, all OAuth keys.
+- If redirecting after social login, prefer `CLIENT_URL` over `CLI_URL`.
+
+`.env.example` in this repo currently includes: `PORT`, `MONGO_URI`,
+`JWT_SECRET`, `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`.
 
 **Config bootstrap:**
 
@@ -506,6 +580,38 @@ app.use(notFound);
 app.use(errorHandler);
 ```
 
+JS equivalent (in `server/server.js`):
+
+```js
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
+const config = require('./config');
+
+const app = express();
+connectDB();
+
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routers (to add):
+// app.use('/api/auth', require('./routes/auth'));
+// app.use('/api/listings', require('./routes/listings'));
+
+// Error middleware (to add):
+// app.use(require('./middlewares/error').notFound);
+// app.use(require('./middlewares/error').errorHandler);
+
+app.listen(config.port, () => {
+  console.log(`API listening on http://localhost:${config.port}`);
+});
+```
+
 ```ts
 // src/server.ts
 import { app } from './app';
@@ -535,6 +641,8 @@ export async function connectDB() {
 }
 ```
 
+Current JS version uses `server/config/db.js` with `mongoose.connect`.
+
 **User model:**
 
 ```ts
@@ -555,6 +663,12 @@ const userSchema = new Schema(
 
 export const User = model('User', userSchema);
 ```
+
+Model alignment notes (current JS):
+
+- `server/models/user.js` currently uses `password` (required) instead of
+  `passwordHash`. When adding auth, either migrate to `passwordHash` with
+  bcrypt, or keep `password` only temporarily for bootstrapping, then migrate.
 
 **Listing model:**
 
@@ -579,6 +693,11 @@ const listingSchema = new Schema(
 listingSchema.index({ title: 'text', description: 'text' });
 export const Listing = model('Listing', listingSchema);
 ```
+
+Model alignment notes (current JS):
+
+- `postedBy` exists but is not marked `required` in JS. Decide whether to make
+  it required when enabling authenticated listing creation.
 
 ---
 
@@ -623,6 +742,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 ```
+
+JS equivalents (files to add):
+
+- `server/utils/password.js` with `bcryptjs` helpers.
+- `server/utils/jwt.js` with `jsonwebtoken` sign/verify using `JWT_SECRET`.
+- `server/middlewares/auth.js` to parse `Authorization: Bearer <token>` and set
+  `req.user = { userId }`.
 
 ### Auth Routes & Controllers
 
@@ -671,6 +797,11 @@ export async function me(req: Request, res: Response) {
 }
 ```
 
+JS equivalents (files to add):
+
+- `server/controllers/authController.js`: `register`, `login`, `me`.
+- `server/routes/auth.js`: wires the three endpoints under `/api/auth`.
+
 ### Social Login (Optional, via Passport)
 
 ```ts
@@ -706,11 +837,14 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), (req: any, res) => {
   const token = signToken({ userId: req.user.id });
   // redirect to client with token (or set cookie)
-  res.redirect(`${process.env.CLI_URL}/social-login?token=${token}`);
+  res.redirect(`${process.env.CLIENT_URL}/social-login?token=${token}`);
 });
 ```
 
 > For Facebook: replicate with `passport-facebook`.
+
+Status: Social login is not implemented in the current JS server. Treat this as
+future work; do not scaffold Passport until requested.
 
 ---
 
@@ -790,6 +924,12 @@ export async function createListing(req: Request, res: Response) {
 }
 ```
 
+JS equivalents (files to add):
+
+- `server/controllers/listingController.js`: `getListings`, `getListingById`,
+  `createListing`.
+- `server/routes/listings.js`: GET `/` and `/:id`, POST `/` with auth + upload.
+
 ---
 
 ## File Uploads (Multer)
@@ -818,6 +958,10 @@ export const uploadArray = upload.array('images', 8);
 ```
 
 > Static serving is enabled in `app.ts` via `app.use('/uploads', express.static('uploads'))`.
+
+JS equivalent (file to add): `server/middlewares/upload.js` exporting
+`upload`, `uploadSingle`, `uploadArray`. Ensure static serving is mounted in
+`server/server.js` via `express.static(path.join(__dirname, 'uploads'))`.
 
 ---
 
@@ -852,6 +996,9 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
 }
 ```
 
+JS equivalents (file to add): `server/middlewares/error.js` with `notFound` and
+`errorHandler` exports.
+
 ---
 
 ## Security & CORS
@@ -882,7 +1029,7 @@ npm i -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prett
 
 * `POST /api/auth/register` { name, email, password } → `{ token }`
 * `POST /api/auth/login` { email, password } → `{ token }`
-* `GET  /api/auth/me` (Bearer) → \`{ user }
+* `GET  /api/auth/me` (Bearer) → `{ user }`
 
 **Listings**
 
@@ -908,6 +1055,89 @@ npm i -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prett
 
 ---
 
+## Server TODO Checklist (JS)
+
+- Add middlewares: `server/middlewares/error.js`, `server/middlewares/auth.js`,
+  `server/middlewares/upload.js`.
+- Add utils: `server/utils/password.js`, `server/utils/jwt.js`.
+- Add controllers: `server/controllers/authController.js`,
+  `server/controllers/listingController.js`.
+- Add routes: `server/routes/auth.js`, `server/routes/listings.js`.
+- Wire routers + middlewares in `server/server.js` and mount `/uploads` static.
+- Install deps: `cors`, `morgan`, `bcryptjs`, `jsonwebtoken`, `multer`.
+- Decide on model alignment: `password` → `passwordHash` and `postedBy`
+  required or not.
+
+---
+
+## Endpoint Examples (cURL)
+
+Register:
+
+```bash
+curl -sS -X POST http://localhost:5000/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Alice","email":"alice@example.com","password":"secret"}'
+```
+
+Login:
+
+```bash
+curl -sS -X POST http://localhost:5000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"alice@example.com","password":"secret"}'
+```
+
+Me:
+
+```bash
+curl -sS http://localhost:5000/api/auth/me \
+  -H 'Authorization: Bearer <token>'
+```
+
+List listings:
+
+```bash
+curl -sS 'http://localhost:5000/api/listings?page=1&limit=10&q=studio'
+```
+
+Create listing (single image):
+
+```bash
+curl -sS -X POST http://localhost:5000/api/listings \
+  -H 'Authorization: Bearer <token>' \
+  -F 'title=Nice flat in center' \
+  -F 'description=Bright and cozy' \
+  -F 'rent=800' \
+  -F 'location=Prati' \
+  -F 'available=true' \
+  -F 'availableFrom=2025-09-01' \
+  -F 'image=@/path/to/photo.jpg'
+```
+
+---
+
+## Client Integration Status
+
+- Client currently uses mock data (`client/src/data/*`) and custom hooks that do
+  not call the backend (`useListings`, `useFlatmates`).
+- After backend endpoints are ready, replace mock hooks with fetch calls to
+  `/api/listings` and `/api/listings/:id`.
+
+---
+
+## AI Execution Checklist
+
+1) Confirm JS mode. Do not add TypeScript unless asked.
+2) Add middlewares, utils, controllers, routes using JS mapping above.
+3) Install server deps: `cors`, `morgan`, `bcryptjs`, `jsonwebtoken`, `multer`.
+4) Mount `/uploads` static and implement upload middleware.
+5) Implement auth endpoints; verify with cURL.
+6) Implement listings endpoints with filters/pagination; verify with cURL.
+7) Only then wire the client to call the API (replace mock hooks).
+
+---
+
 ## Future Enhancements
 
 * Cloud storage (S3/Cloudinary) via an upload service
@@ -923,3 +1153,22 @@ npm i -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prett
 * No role‑based access now; any authenticated user can post and search.
 * Keep controllers thin; push reusable logic into services/utils as app grows.
 * Document your API for the frontend (this file + a `/docs` route or Swagger later).
+
+---
+
+## Client TODOs (Wizard + Geolocation)
+
+- Offer creation wizard
+  - Implement remaining steps after `type` and `location` (rooms, rent, bills,
+    availability, amenities, photos, description, review/submit) and POST to
+    `/api/listings` with JWT when backend is ready.
+  - Persist wizard state and allow resume/cancel flows.
+
+- Geolocation & Autocomplete (TODO)
+  - Replace temporary mock suggestions in the `LocationStep` with a real
+    autocomplete/geocoding provider (Mapbox Places, Google Places, or OSM
+    Nominatim with attribution and rate limiting).
+  - Debounce input; fetch suggestions; on selection, store full address and
+    coordinates (lat/lng) in wizard context.
+  - Consider a server proxy for API keys if needed; otherwise restrict keys to
+    the client origin.
