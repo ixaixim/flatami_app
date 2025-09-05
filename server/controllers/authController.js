@@ -8,10 +8,11 @@ async function register(req, res) {
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email and password required' });
     }
-    const exists = await User.findOne({ email });
+    const normEmail = String(email).trim().toLowerCase();
+    const exists = await User.findOne({ email: normEmail });
     if (exists) return res.status(409).json({ message: 'Email in use' });
     const passwordHash = await hash(password);
-    const user = await User.create({ name, email, passwordHash });
+    const user = await User.create({ name, email: normEmail, passwordHash });
     const token = signToken({ userId: user.id });
     return res.status(201).json({ token });
   } catch (e) {
@@ -25,7 +26,8 @@ async function login(req, res) {
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
     }
-    const user = await User.findOne({ email });
+    const normEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({ email: normEmail });
     if (!user || !user.passwordHash) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -50,4 +52,3 @@ async function me(req, res) {
 }
 
 module.exports = { register, login, me };
-
