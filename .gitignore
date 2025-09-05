@@ -40,3 +40,7 @@ server/uploads/
 tests/output/
 
 .github/
+
+# Windows Alternate Data Streams (downloaded files metadata)
+# Ignore Zone.Identifier sidecar files accidentally added on Windows
+*:Zone.Identifier
