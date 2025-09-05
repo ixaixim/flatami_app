@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/atoms/Icon';
-import BottomNav from '../components/molecules/BottomNav';
 
 export default function CreatePage() {
   const navigate = useNavigate();
@@ -72,7 +71,6 @@ export default function CreatePage() {
       </main>
 
       {/* Bottom nav (mobile) */}
-      <BottomNav />
     </div>
   );
 }

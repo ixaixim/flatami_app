@@ -12,7 +12,6 @@ import { ListingFeed } from '../components/organisms/ListingFeed';
 import { FlatmateFeed } from '../components/organisms/FlatmateFeed';
 import { sampleListings } from '../data/sampleListings';
 import { mockFlatmates } from '../data/flatmates';
-import BottomNav from '../components/molecules/BottomNav';
 
 export default function MainScreen() {
   // Mobile segmented state
@@ -99,7 +98,6 @@ export default function MainScreen() {
             )}
           </div>
         </main>
-        <BottomNav />
       </div>
     </div>
   );
